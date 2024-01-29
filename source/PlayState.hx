@@ -1564,7 +1564,7 @@ class PlayState extends MusicBeatState
 		char.y += char.positionArray[1];
 	}
 
-	public function startVideo(name:String)
+	public function startVideo(name:String, ?startEnd:Bool = false)
 	{
 		#if VIDEOS_ALLOWED
 		inCutscene = true;
@@ -1577,7 +1577,8 @@ class PlayState extends MusicBeatState
 		#end
 		{
 			FlxG.log.warn('Couldnt find video file: ' + name);
-			startAndEnd();
+			callOnLuas('onVideoEnd', [name]);
+			if(startEnd) startAndEnd();
 			return;
 		}
 
@@ -1585,12 +1586,14 @@ class PlayState extends MusicBeatState
 		video.play(filepath);
 		video.onEndReached.add(function()
 		{
-			startAndEnd();
+			callOnLuas('onVideoEnd', [name]);
+			if(startEnd) startAndEnd();
 			return;
 		}, true);
 		#else
 		FlxG.log.warn('Platform not supported!');
-		startAndEnd();
+		callOnLuas('onVideoEnd', [name]);
+		if(startEnd) startAndEnd(); //Apparently startAndEnd() breaks mods with dialogue so it is able to be turned off by default now
 		return;
 		#end
 	}
